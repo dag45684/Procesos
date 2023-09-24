@@ -86,7 +86,7 @@ class Person implements Runnable {
 	
 	private void waitFor() {
 		Random r = new Random();
-		int t = r.nextInt(3);
+		int t = r.nextInt(300)+200;
 		try {
 			Thread.sleep(t);
 		}catch (Exception e) {
