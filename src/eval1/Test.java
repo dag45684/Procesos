@@ -12,9 +12,9 @@ public class Test {
 		Critical c = new Critical(np);
 		
 		for (int i=0; i<np; i++) {
-			try {
+			if (i+i < np){
 				people[i] = new Person(c, i, i+1);
-			}catch (Exception e) {
+			}else {
 				people[i] = new Person(c, i, 0);
 			}
 			threads[i] = new Thread(people[i]);
