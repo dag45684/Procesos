@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Ex5T2 {
-
 	public static void main(String[] args) throws FileNotFoundException {
 		
 		Scanner s = new Scanner(System.in);
@@ -21,13 +20,13 @@ public class Ex5T2 {
 		case "S":
 			long t0 = System.nanoTime();
 			parseSec(dir);
-			System.out.printf("Sequential time: %dms", (System.nanoTime()-t0)/1000000);
+			System.out.printf("Sequential time: %.3f ms", (System.nanoTime()-t0)/1000000d);
 			break;
 		case "C":
 			long t1 = System.nanoTime();
 			parseCon(dir);
 			while(Thread.activeCount()>1) {}
-			System.out.printf("Concurrent time: %dms", (System.nanoTime()-t1)/1000000);
+			System.out.printf("Concurrent time: %.3f ms", (System.nanoTime()-t1)/1000000d);
 			break;
 		default:
 			System.out.println("Wrong flag");
@@ -36,22 +35,20 @@ public class Ex5T2 {
 	}
 	
 	public static void parseSec(String dir) throws FileNotFoundException {
-
 		File f = new File(dir);
 		if (!f.exists()) { return; }
 		File[] content = f.listFiles();
 		for(File file : content) {
-			if(!file.isDirectory()) {
-				Scanner sc = new Scanner(file);
-				int letters = 0;
-				int words = 0;
-				int lines = 0;
-				while(sc.hasNextLine()) {
-					String line = sc.nextLine();
-					lines++;
-					words += line.split(" ").length;
-					letters += line.length();
-				}
+			if(file.isDirectory()) { continue; }
+			Scanner sc = new Scanner(file);
+			int letters = 0;
+			int words = 0;
+			int lines = 0;
+			while(sc.hasNextLine()) {
+				String line = sc.nextLine();
+				lines++;
+				words += line.split(" ").length;
+				letters += line.length();
 				System.out.printf("%s: %d letters, %d words, %d lines. %n", file.getName(), letters, words, lines);
 			}
 		}
@@ -62,12 +59,10 @@ public class Ex5T2 {
 		if (!f.exists()) { return; }
 		File[] content = f.listFiles();
 		for(File file : content) {
-			if(!file.isDirectory()) {
-				new Thread (new ParserRunnable(file)).start();
-			}
+			if(file.isDirectory()) { continue; }
+			new Thread (new ParserRunnable(file)).start();
 		}
 	}
-	
 }
 
 
@@ -98,7 +93,7 @@ class ParserRunnable implements Runnable{
 					}
 					sc.close();
 				} catch (IOException e) {}
-					System.out.printf("%s: %d letters, %d words, %d lines. %n", f.getName(), letters, words, lines);
+				System.out.printf("%s: %d letters, %d words, %d lines. %n", f.getName(), letters, words, lines);
 			}
 		};
 		parser.run();
