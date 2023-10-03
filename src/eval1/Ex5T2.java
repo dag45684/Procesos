@@ -21,13 +21,13 @@ public class Ex5T2 {
 		case "S":
 			long t0 = System.nanoTime();
 			parseSec(dir);
-			System.out.printf("Time: %dms", (System.nanoTime()-t0)/1000000);
+			System.out.printf("Sequential time: %dms", (System.nanoTime()-t0)/1000000);
 			break;
 		case "C":
 			long t1 = System.nanoTime();
 			parseCon(dir);
 			while(Thread.activeCount()>1) {}
-			System.out.printf("Time: %dms", (System.nanoTime()-t1)/1000000);
+			System.out.printf("Concurrent time: %dms", (System.nanoTime()-t1)/1000000);
 			break;
 		default:
 			System.out.println("Wrong flag");
