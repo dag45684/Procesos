@@ -4,14 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
-public class Ex5T2p2 {
+public class Ex5T2p3 {
 
 	public static void main(String[] args) throws FileNotFoundException {
 
@@ -37,24 +35,21 @@ public class Ex5T2p2 {
 	}
 	
 	public static void parseCon(String dir) {
-
-		List<File> files = new ArrayList<>();
-		File folder = new File(dir);
-		if(folder.isDirectory()) {
-			File[] fileList = folder.listFiles();
-			if (fileList != null) {
-				for (File f : fileList) {
-					if(f.isFile()) {
-						files.add(f);
-					}
-				}
-			}
+		File[] temp = new File(dir).listFiles();
+		long t0 = System.nanoTime();
+		List<File> files = List.of(temp).stream().filter(e -> e.isFile()).collect(Collectors.toList()); 
+		boolean bruteforce = true;
+		if(bruteforce) {
+			LinkedList<Thread> tl = new LinkedList<>();
+			files.forEach(e -> tl.add(new Thread(new Counter(e))));
+			tl.forEach(e -> e.start());
+			tl.forEach(e -> {
+				try {
+					e.join();
+				}catch (Exception err) {}
+			});
+			System.out.println(System.nanoTime() - t0);
 		}
-		ExecutorService ex = Executors.newFixedThreadPool(8);
-		for (File file : files) {
-			ex.execute(new FileProcessor(file));
-		}
-		ex.shutdown();
 	}
 	
 	public static void parseSec(String dir) throws FileNotFoundException {
@@ -72,42 +67,33 @@ public class Ex5T2p2 {
 				lines++;
 				words += line.split(" ").length;
 				letters += line.length();
-				System.out.printf("%s: %d letters, %d words, %d lines. %n", file.getName(), letters, words, lines);
 			}
+			System.out.printf("%s: %d letters, %d words, %d lines. %n", file.getName(), letters, words, lines);
 		}
 	}
-	
 }
 
-class FileProcessor implements Runnable{
+class Counter implements Runnable{
 	
 	private File file;
 	
-	public FileProcessor (File file){
+	Counter(File file){
 		this.file = file;
 	}
 
 	@Override
 	public void run() {
-		Runnable parser = new Runnable(){
-			@Override
-			public void run() {
-				int letters = 0;
-				int words = 0;
-				int lines = 0;
-				String line = null;
-				try {
-					BufferedReader sc = new BufferedReader(new FileReader(file));
-					while((line = sc.readLine()) != null) {
-						lines++;
-						words += line.split(" ").length;
-						letters += line.length();
-					}
-					sc.close();
-				} catch (IOException e) {}
-				System.out.printf("%s: %d letters, %d words, %d lines. %n", file.getName(), letters, words, lines);
+		int letters = 0;
+		int words = 0;
+		int lines = 0;
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			String line;
+			while((line = br.readLine()) != null) {
+				lines++;
+				words += line.split(" ").length;
+				letters += line.length();
 			}
-		};
-		parser.run();
+		}catch (Exception e) {}
+		System.out.printf("%s: %d letters, %d words, %d lines. %n", file.getName(), letters, words, lines);
 	}
 }
