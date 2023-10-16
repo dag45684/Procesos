@@ -13,5 +13,4 @@ public class ApiNonStaticInterruption implements Runnable {
 			}
 		}
 	}
-
 }

@@ -9,8 +9,8 @@ public class ApiInterruption extends Thread {
 				Thread.sleep(200);
 			} catch (Exception e) {
 				System.out.println("Thread interrupted while sleep");
+				interrupt();
 			}
-			interrupt();
 		}
 	}
 
