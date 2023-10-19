@@ -3,12 +3,18 @@ package eval1;
 public class Ex13T2 {
 
 	public static void main(String[] args) {
+		Storage stg = new Storage(20);
+		for(int i=0; i<40; i++) {
+			new Producer(stg, 100).start();
+			new Consumer(stg, 1000).start();
+		}
+		System.out.println(stg.getStored());
 
 	}
 
 }
 
-class Consumer {
+class Consumer extends Thread{
 	private long retard;
 	private Storage storage;
 
@@ -62,17 +68,18 @@ class Storage {
 	 }
 
 	public synchronized void store(String product) {
-		if (stored == products.length) // almacén lleno
+		while (stored == products.length) // Storage full
 			try {
-				wait();
+				wait(); // Put the thread on wait until its notified the action can be performed
 			} catch (InterruptedException e) {
 			}
 		products[stored++] = product;
-		notify();
+		notify(); // inform one of the threads on wait they can compete again for the resources of the system and continue its funcions
+		// notifyAll(); // same but informing ALL threads on wait
 	}
 
 	public synchronized String retrieve() {
-		if (stored == 0) // almacén vacío
+		while (stored == 0) //  Storage empty
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -80,5 +87,9 @@ class Storage {
 		String producto = products[--stored];
 		notify();
 		return producto;
+	}
+	
+	public int getStored() {
+		return stored;
 	}
 }
