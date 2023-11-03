@@ -1,59 +1,59 @@
 package Barberman;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class BarberShop {
 	
-
-	private final int MAX;
-	int freeSeats;
+	Queue <Client> l;
 	boolean onDuty;
+	int free;
 	
-	public BarberShop(int MAX) {
-		this.MAX = MAX;
-		this.freeSeats = MAX;
-		this.onDuty = false;
+	public BarberShop(int n) {
+		free = n;
+		l = new LinkedList<>();
 	}
 	
-	public boolean isWorkLeft() {
-		return freeSeats != MAX;
+	public void cutHair() {
+		Client c = waitClients();
+		try {
+			System.out.println(c.name + " is now cutting his hair.");
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {}
+			System.out.println(c.name + " is now leaving");
 	}
 	
-	//why the seven fucking depths of jesus christus hells is this not working synchronized
-	public boolean takeSeat() {
-		System.out.println(Thread.currentThread().getName() + " enters the barber shop.");
-		freeSeats--;
-		System.out.println("There are " + freeSeats + " seats available.");
-		if (freeSeats < 0) {
-			System.out.println(Thread.currentThread().getName() + " leaves due to overcrowd.");
-			freeSeats++;
+	private synchronized Client waitClients() {
+		if (l.isEmpty()) {
+			onDuty = false;
+			System.out.println("Barber goes to sleep");
+			try {
+				wait();
+			}catch (Exception e) {}
+		}
+		onDuty = true;
+		return l.poll();
+	}
+	
+	private boolean arrangeClients() {
+		if (l.size() == free) {
+			System.out.println(Thread.currentThread().getName() + " leaves due to overcrowd");
 			return false;
 		}
-		System.out.println(Thread.currentThread().getName() + " takes seat.");
 		return true;
 	}
 	
-	public synchronized void attend() {
-		onDuty = true;
-	}
-	
-	public synchronized void becomesCustomer () {
-		if (onDuty) {
-			System.out.println(Thread.currentThread().getName() + " joins the waiting room");
-			try {
-				wait();
-			} catch (InterruptedException e) {}
-		}
-		trimHair();
-	}
-	
-	public synchronized void trimHair() {
-		freeSeats++;
-		System.out.println("Trimming hair of " + Thread.currentThread().getName());
-		try {
-			Thread.sleep(4000);
-		} catch (InterruptedException e) {}
-		System.out.println(Thread.currentThread().getName() + " leaves the barber shop.");
-		onDuty = false;
-		notify();
+	public synchronized void joinWaitingRoom(Client c) {
+			System.out.println(Thread.currentThread().getName() + " is joining the waiting room");
+			if (arrangeClients()) {
+				l.offer(c);
+			}
+			
+			if(l.size() == 1 && !onDuty) {
+				System.out.println(Thread.currentThread().getName() + " awakes the barber.");
+				notify();
+			}
+
 	}
 	
 
