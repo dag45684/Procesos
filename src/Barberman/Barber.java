@@ -4,8 +4,8 @@ public class Barber extends Thread{
 
 	BarberShop bs;
 	
-	public Barber(String n, BarberShop bs) {
-		super(n);
+	public Barber(BarberShop bs) {
+		super();
 		this.bs = bs;
 	}
 	

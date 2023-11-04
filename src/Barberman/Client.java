@@ -16,7 +16,7 @@ public class Client extends Thread{
 	
 	public void run() {
 		try {
-			Thread.sleep(rnd.nextInt(30000));
+			Thread.sleep(rnd.nextInt(16000));
 		} catch (InterruptedException e) {}
 		joinQueue();
 	}
