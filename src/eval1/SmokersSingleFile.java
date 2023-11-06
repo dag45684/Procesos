@@ -57,8 +57,8 @@ class Agent extends Thread{
 			this.e1 = Cigars.values()[rnd.nextInt(Cigars.values().length)];
 			this.e2 = Cigars.values()[rnd.nextInt(Cigars.values().length)];
 			while (e2 == e1) this.e2 = Cigars.values()[rnd.nextInt(Cigars.values().length)];
-			System.out.println("Agent puts on the table: " + e1 + " + " + e2);
 			t.store(e1, e2);
+			System.out.println("Agent puts on the table: " + e1 + " + " + e2);
 		}
 	}
 }
@@ -87,6 +87,9 @@ class Table {
 			} catch (InterruptedException err) {}
 		this.e1 = null;
 		this.e2 = null;
+		try {
+			Thread.sleep(1000);
+		}catch (Exception e) {}
 		notify();
 	}
 	
