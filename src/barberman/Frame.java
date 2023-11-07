@@ -1,4 +1,4 @@
-package Barberman;
+package barberman;
 
 import java.awt.Color;
 import java.awt.Graphics;

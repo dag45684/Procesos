@@ -1,4 +1,4 @@
-package Barberman;
+package barberman;
 
 import java.util.LinkedList;
 import java.util.Queue;

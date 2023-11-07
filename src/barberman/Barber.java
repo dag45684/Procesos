@@ -1,4 +1,4 @@
-package Barberman;
+package barberman;
 
 public class Barber extends Thread{
 

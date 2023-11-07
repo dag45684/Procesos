@@ -1,4 +1,4 @@
-package eval1;
+package exercises;
 
 public class Ex13T2 {
 

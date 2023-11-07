@@ -1,6 +1,8 @@
-package eval1;
+package smokers;
 
 import java.util.Random;
+
+import eval1.Cigars;
 
 public class SmokersSingleFile {
 

@@ -20,7 +20,7 @@ public class Exercise15 {
 	}
 	
 	public void sitDown() {
-		BENCH.acquire();
+//		BENCH.acquire();
 		System.out.println();
 		
 	}
@@ -34,9 +34,9 @@ class Person extends Thread{
 	}
 	
 	public void run() {
-		Parque =
+//		Parque =
 		System.out.println();
-		Thread.sleep(1000);
+//		Thread.sleep(1000);
 		System.out.println();
 		
 		

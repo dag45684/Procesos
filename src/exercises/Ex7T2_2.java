@@ -1,28 +1,22 @@
-package eval1;
+package exercises;
 
-public class FlagInterruption extends Thread{
+public class Ex7T2_2 extends Thread{
 
 	//Volatile prevents from cache copying the variable for the Thread so modifying it out of it does affect the behavior of the flag for the thread
-	private volatile boolean end = false;
+	static boolean end = false;
 	
 	@Override
 	public void run() {
-		while(!end) {
-			System.out.println("Running");
-			try {
-				Thread.sleep(100);
-			} catch (Exception e) {}
-		}
+		while(!end);
 		System.out.println("Thread finished");
 	}
 	
-	public void putToEnd() { end = true; }
-
 	public static void main(String[] args) throws InterruptedException {
-		FlagInterruption fi = new FlagInterruption();
+		Ex7T2_2 fi = new Ex7T2_2();
 		fi.start();
 		Thread.sleep(2000);
-		fi.putToEnd();
+		end = true;
+		System.out.println("End of main.");
 
 	}
 

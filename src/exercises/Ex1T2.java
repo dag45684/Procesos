@@ -1,8 +1,8 @@
-package eval1;
+package exercises;
 
 import java.util.Iterator;
 
-public class ThreadPractice1 {
+public class Ex1T2 {
 
 	public static void main(String[] args) {
 		

@@ -1,4 +1,4 @@
-package eval1;
+package exercises;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,12 +8,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
-public class Clock extends JFrame implements Runnable {
+public class Ex3T2 extends JFrame implements Runnable {
 	
 	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 	private JLabel hour;
 	
-	public Clock() {
+	public Ex3T2() {
 		super("Clock");
 		hour = new JLabel(formatter.format(LocalDateTime.now()));
 		hour.setBorder(BorderFactory.createCompoundBorder(
@@ -50,7 +50,7 @@ public class Clock extends JFrame implements Runnable {
 		SwingUtilities.invokeLater( new Runnable() {
 			@Override
 			public void run() {
-				new Clock().start();
+				new Ex3T2().start();
 			}
 		});
 	}

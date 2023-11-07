@@ -1,4 +1,4 @@
-package Barberman;
+package barberman;
 
 import javax.swing.JFrame;
 

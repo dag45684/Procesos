@@ -1,6 +1,6 @@
-package eval1;
+package exercises;
 
-public class ThreadPractice2 {
+public class Ex2T2 {
 
 	public static void main(String[] args) {
 		

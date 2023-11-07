@@ -1,4 +1,4 @@
-package eval1;
+package exercises;
 
 import java.io.BufferedReader;
 import java.io.File;
