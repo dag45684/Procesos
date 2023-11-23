@@ -1,4 +1,4 @@
-package semaphores;
+package executors;
 
 public class Person extends Thread{
 	
