@@ -6,7 +6,11 @@ import java.awt.FontFormatException;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
@@ -21,8 +25,21 @@ public class Keyboard extends JPanel {
 	private Font font;
 	
 	private Display display = new Display();
+	
+	//We make a client side out of this keyboard:
+	Socket s = null;
+	PrintWriter out = null;
+	BufferedReader in = null;
 
 	public Keyboard() {
+		
+		//Client tools initialization
+		try {
+			s = new Socket("localhost", 9999);
+			out = new PrintWriter(s.getOutputStream());
+			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+		}catch (Exception e) {}
+
 		try {
 			font = Font.createFont(Font.PLAIN, Keyboard.class.getResourceAsStream("code.otf")).deriveFont(50f);
 		} catch (FontFormatException | IOException e) {
@@ -75,6 +92,14 @@ public class Keyboard extends JPanel {
 			addActionListener(this::update);
 		}
 		
+		
+		protected void setText() {
+			try {
+				String s = in.readLine();
+				display.setText(s);
+			}catch (Exception e) {}
+		}
+		
 		protected abstract void update(ActionEvent e);
 	}
 	
@@ -87,24 +112,12 @@ public class Keyboard extends JPanel {
 		}
 		
 		protected void update(ActionEvent e) {
-			display.clear();
+			out.println("C");
+			out.flush();
+			setText();
 		}
 		
 	}
-	
-//	private class ConnectKey extends Key {
-//
-//		private static final long serialVersionUID = 1L;
-//		
-//		public ConnectKey() {
-//			super(new String(Character.toChars(0x1F5A7)));
-//		}
-//		
-//		protected void update(ActionEvent e) {
-//			
-//		}
-//		
-//	}
 	
 	private class NumberKey extends Key {
 
@@ -117,7 +130,9 @@ public class Keyboard extends JPanel {
 		}
 		
 		protected void update(ActionEvent e) {
-			display.update(value);
+			out.println(value);
+			out.flush();
+			setText();
 		}
 
 	}
@@ -126,14 +141,18 @@ public class Keyboard extends JPanel {
 
 		private static final long serialVersionUID = 1L;
 		private BinaryOperator<Double> operation;
+		private String symbol;
 		
 		public BinaryOperatorKey(String symbol, BinaryOperator<Double> operation) {
 			super(symbol);
 			this.operation = operation;
+			this.symbol = symbol;
 		}
 		
 		protected void update(ActionEvent e) {
-			display.binaryOperation(operation);
+			out.println(symbol);
+			out.flush();
+			setText();
 		}
 		
 	}
@@ -142,14 +161,18 @@ public class Keyboard extends JPanel {
 
 		private static final long serialVersionUID = 1L;
 		private UnaryOperator<Double> operation;
+		private String symbol;
 		
 		public UnaryOperatorKey(String symbol, UnaryOperator<Double> operation) {
 			super(symbol);
 			this.operation = operation;
+			this.symbol = symbol;
 		}
 		
 		protected void update(ActionEvent e) {
-			display.unaryOperation(operation);
+			out.println(symbol);
+			out.flush();
+			setText();
 		}
 		
 	}
@@ -163,7 +186,8 @@ public class Keyboard extends JPanel {
 		}
 		
 		protected void update(ActionEvent e) {
-			display.startDecimal();
+			out.println("decimal");
+			setText();
 		}
 		
 	}
