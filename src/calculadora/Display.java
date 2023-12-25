@@ -14,7 +14,7 @@ public class Display extends JTextField {
 	static final long serialVersionUID = 1L;
 
 	public Display() {
-		super("0.0", 20);
+		super("0", 20);
 		try {
 			setFont(Font.createFont(Font.PLAIN, Display.class.getResourceAsStream("Calculator.ttf"))
 						.deriveFont(70f));

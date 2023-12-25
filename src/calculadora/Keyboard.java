@@ -121,7 +121,7 @@ public class Keyboard extends JPanel {
 		}
 		
 		protected void update(ActionEvent e) {
-			if (Double.toString(ans).contains(display.getText())) display.setText(value);
+			if (Double.toString(ans).contains(display.getText()) || display.getText().equals("0")) display.setText(value);
 			else display.setText(display.getText()+value);
 		}
 	}
@@ -137,7 +137,14 @@ public class Keyboard extends JPanel {
 		
 		protected void update(ActionEvent e) {
 			if (symbol.equals("=")) {
+				ans = Double.parseDouble(display.getText()); 
 				out.println(display.getText());
+				out.flush();
+				try {
+					String response = in.readLine(); 
+					System.out.println(response);
+					display.setText(response);
+				} catch (IOException err) {System.err.println(err);}
 				return;
 			}
 			if (ans == 0) {
