@@ -26,8 +26,10 @@ public class Keyboard extends JPanel {
 	
 	private Display display = new Display();
 	
+	private double ans;
+	
 	//We make a client side out of this keyboard:
-	Socket s = null;
+	Socket socket = null;
 	PrintWriter out = null;
 	BufferedReader in = null;
 
@@ -35,9 +37,9 @@ public class Keyboard extends JPanel {
 		
 		//Client tools initialization
 		try {
-			s = new Socket("localhost", 9999);
-			out = new PrintWriter(s.getOutputStream());
-			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			socket = new Socket("localhost", 9999);
+			out = new PrintWriter(socket.getOutputStream());
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		}catch (Exception e) {}
 
 		try {
@@ -51,24 +53,24 @@ public class Keyboard extends JPanel {
 		GridBagConstraints constraints = new GridBagConstraints();
 		addKey(display, 0, 0, 4, 1, constraints);
 		addKey(new ClearKey(), 0, 1, 2, 1, constraints);
-		addKey(new UnaryOperatorKey("\u00b1", a -> -a), 2, 1, 1, 1, constraints);
-		addKey(new UnaryOperatorKey("\u221a", a -> Math.sqrt(a)), 3, 1, 1, 1, constraints);
+		addKey(new OperatorKey("\u00b1"), 2, 1, 1, 1, constraints);
+		addKey(new OperatorKey("\u221a"), 3, 1, 1, 1, constraints);
 		addKey(new NumberKey("1"), 0, 2, 1, 1, constraints);
 		addKey(new NumberKey("2"), 1, 2, 1, 1, constraints);
 		addKey(new NumberKey("3"), 2, 2, 1, 1, constraints);
-		addKey(new BinaryOperatorKey("\u00f7", (a, b) -> a / b), 3, 2, 1, 1, constraints);
+		addKey(new OperatorKey("\u00f7"), 3, 2, 1, 1, constraints);
 		addKey(new NumberKey("4"), 0, 3, 1, 1, constraints);
 		addKey(new NumberKey("5"), 1, 3, 1, 1, constraints);
 		addKey(new NumberKey("6"), 2, 3, 1, 1, constraints);
-		addKey(new BinaryOperatorKey("\u00d7", (a, b) -> a * b), 3, 3, 1, 1, constraints);
+		addKey(new OperatorKey("\u00d7"), 3, 3, 1, 1, constraints);
 		addKey(new NumberKey("7"), 0, 4, 1, 1, constraints);
 		addKey(new NumberKey("8"), 1, 4, 1, 1, constraints);
 		addKey(new NumberKey("9"), 2, 4, 1, 1, constraints);
-		addKey(new BinaryOperatorKey("-", (a, b) -> a - b), 3, 4, 1, 1, constraints);
+		addKey(new OperatorKey("-"), 3, 4, 1, 1, constraints);
 		addKey(new NumberKey("0"), 0, 5, 1, 1, constraints);
 		addKey(new DecimalKey(), 1, 5, 1, 1, constraints);
-		addKey(new UnaryOperatorKey("=", a -> a), 2, 5, 1, 1, constraints);
-		addKey(new BinaryOperatorKey("+", (a, b) -> {return a + b;}), 3, 5, 1, 1, constraints);
+		addKey(new OperatorKey("="), 2, 5, 1, 1, constraints);
+		addKey(new OperatorKey("+"), 3, 5, 1, 1, constraints);
 	}
 
 	private void addKey(JComponent component, int x, int y, int width, int height, GridBagConstraints constraints) {
@@ -82,7 +84,6 @@ public class Keyboard extends JPanel {
 	}
 
 	private abstract class Key extends JButton {
-
 		protected static final long serialVersionUID = 1L;
 		
 		private Key(String text) {
@@ -92,19 +93,10 @@ public class Keyboard extends JPanel {
 			addActionListener(this::update);
 		}
 		
-		
-		protected void setText() {
-			try {
-				String s = in.readLine();
-				display.setText(s);
-			}catch (Exception e) {}
-		}
-		
 		protected abstract void update(ActionEvent e);
 	}
 	
 	private class ClearKey extends Key {
-
 		private static final long serialVersionUID = 1L;
 		
 		public ClearKey() {
@@ -112,73 +104,70 @@ public class Keyboard extends JPanel {
 		}
 		
 		protected void update(ActionEvent e) {
+			display.setText("");
+			ans = 0;
 			out.println("C");
 			out.flush();
-			setText();
 		}
-		
 	}
 	
 	private class NumberKey extends Key {
-
 		private static final long serialVersionUID = 1L;
-		private int value;
+		private String value;
 		
 		public NumberKey(String number) {
 			super(number);
-			value = Integer.parseInt(number);
+			value = number;
 		}
 		
 		protected void update(ActionEvent e) {
-			out.println(value);
-			out.flush();
-			setText();
+			if (Double.toString(ans).contains(display.getText())) display.setText(value);
+			else display.setText(display.getText()+value);
 		}
-
 	}
 	
-	private class BinaryOperatorKey extends Key {
-
+	private class OperatorKey extends Key {
 		private static final long serialVersionUID = 1L;
-		private BinaryOperator<Double> operation;
 		private String symbol;
 		
-		public BinaryOperatorKey(String symbol, BinaryOperator<Double> operation) {
+		public OperatorKey(String symbol) {
 			super(symbol);
-			this.operation = operation;
 			this.symbol = symbol;
 		}
 		
 		protected void update(ActionEvent e) {
-			out.println(symbol);
-			out.flush();
-			setText();
+			if (symbol.equals("=")) {
+				out.println(display.getText());
+				return;
+			}
+			if (ans == 0) {
+				ans = Double.parseDouble(display.getText());
+				out.println(display.getText()+symbol);
+				out.flush();
+			} else {
+				if (!symbol.equals("\u00f7") && !symbol.equals("\u00b1")) {
+					out.println(display.getText());
+					out.flush();
+					try {
+						ans = Double.parseDouble(in.readLine());
+					} catch (Exception e1) {}
+					display.setText(Double.toString(ans));
+					out.println(display.getText()+symbol);
+					out.flush();
+				}else {
+					out.println(display.getText()+symbol);
+					out.flush();
+					try {
+						display.setText(in.readLine());
+					} catch (IOException e1) {
+						display.setText("ERR");
+					}
+				}
+			}
 		}
-		
-	}
-	
-	private class UnaryOperatorKey extends Key {
-
-		private static final long serialVersionUID = 1L;
-		private UnaryOperator<Double> operation;
-		private String symbol;
-		
-		public UnaryOperatorKey(String symbol, UnaryOperator<Double> operation) {
-			super(symbol);
-			this.operation = operation;
-			this.symbol = symbol;
-		}
-		
-		protected void update(ActionEvent e) {
-			out.println(symbol);
-			out.flush();
-			setText();
-		}
-		
 	}
 	
 	private class DecimalKey extends Key {
-
 		private static final long serialVersionUID = 1L;
 		
 		public DecimalKey() {
@@ -186,9 +175,7 @@ public class Keyboard extends JPanel {
 		}
 		
 		protected void update(ActionEvent e) {
-			out.println("decimal");
-			setText();
+			display.setText(display.getText()+'.');
 		}
-		
 	}
 }
