@@ -27,6 +27,10 @@ public class Keyboard extends JPanel {
 	private Display display = new Display();
 	
 	private double ans;
+	private String memory = "";
+	private boolean clear = true;
+	private boolean concat = false;
+	private boolean getans = false;
 	
 	//We make a client side out of this keyboard:
 	Socket socket = null;
@@ -52,7 +56,7 @@ public class Keyboard extends JPanel {
 		setBackground(Color.WHITE);
 		GridBagConstraints constraints = new GridBagConstraints();
 		addKey(display, 0, 0, 4, 1, constraints);
-		addKey(new ClearKey(), 0, 1, 2, 1, constraints);
+		addKey(new OperatorKey("C"), 0, 1, 2, 1, constraints);
 		addKey(new OperatorKey("\u00b1"), 2, 1, 1, 1, constraints);
 		addKey(new OperatorKey("\u221a"), 3, 1, 1, 1, constraints);
 		addKey(new NumberKey("1"), 0, 2, 1, 1, constraints);
@@ -68,7 +72,7 @@ public class Keyboard extends JPanel {
 		addKey(new NumberKey("9"), 2, 4, 1, 1, constraints);
 		addKey(new OperatorKey("-"), 3, 4, 1, 1, constraints);
 		addKey(new NumberKey("0"), 0, 5, 1, 1, constraints);
-		addKey(new DecimalKey(), 1, 5, 1, 1, constraints);
+		addKey(new OperatorKey("."), 1, 5, 1, 1, constraints);
 		addKey(new OperatorKey("="), 2, 5, 1, 1, constraints);
 		addKey(new OperatorKey("+"), 3, 5, 1, 1, constraints);
 	}
@@ -96,21 +100,6 @@ public class Keyboard extends JPanel {
 		protected abstract void update(ActionEvent e);
 	}
 	
-	private class ClearKey extends Key {
-		private static final long serialVersionUID = 1L;
-		
-		public ClearKey() {
-			super("C");
-		}
-		
-		protected void update(ActionEvent e) {
-			display.setText("");
-			ans = 0;
-			out.println("C");
-			out.flush();
-		}
-	}
-	
 	private class NumberKey extends Key {
 		private static final long serialVersionUID = 1L;
 		private String value;
@@ -121,68 +110,93 @@ public class Keyboard extends JPanel {
 		}
 		
 		protected void update(ActionEvent e) {
-			if (Double.toString(ans).contains(display.getText()) || display.getText().equals("0")) display.setText(value);
-			else display.setText(display.getText()+value);
+			getans = false;
+			if (clear) {
+				display.setText(value);
+				clear = false;
+			} else {
+				display.setText(display.getText()+value);
+			}
+			memory += value;
 		}
 	}
 	
 	private class OperatorKey extends Key {
 		private static final long serialVersionUID = 1L;
-		private String symbol;
+		private char symbol;
 		
 		public OperatorKey(String symbol) {
 			super(symbol);
-			this.symbol = symbol;
+			this.symbol = symbol.charAt(0);
 		}
 		
 		protected void update(ActionEvent e) {
-			if (symbol.equals("=")) {
-				ans = Double.parseDouble(display.getText()); 
-				out.println(display.getText());
+			switch(symbol) {
+			case '=':
+				out.println(memory);
 				out.flush();
 				try {
-					String response = in.readLine(); 
-					System.out.println(response);
-					display.setText(response);
-				} catch (IOException err) {System.err.println(err);}
-				return;
-			}
-			if (ans == 0) {
+					display.setText(in.readLine());
+				} catch (IOException e1) { }
+				clear = true;
+				getans = true;
+				concat = false;
 				ans = Double.parseDouble(display.getText());
-				out.println(display.getText()+symbol);
+				memory=Double.toString(ans);
+				break;
+			case '\u221a':
+				memory+="\u221a";
+				out.println(memory);
 				out.flush();
-			} else {
-				if (!symbol.equals("\u00f7") && !symbol.equals("\u00b1")) {
-					out.println(display.getText());
-					out.flush();
-					try {
-						ans = Double.parseDouble(in.readLine());
-					} catch (Exception e1) {}
-					display.setText(Double.toString(ans));
-					out.println(display.getText()+symbol);
-					out.flush();
+				try {
+					display.setText(in.readLine());
+					memory = display.getText();
+				} catch (IOException e1) { }
+				clear = true;
+				break;
+			case '.':
+				display.setText(display.getText()+symbol);
+				break;
+			case '\u00b1':
+				if (display.getText().charAt(0) == '-') {
+					display.setText(display.getText().substring(1));
+					if(memory.contains(" ")) {
+						memory = memory.substring(0, memory.indexOf(" ")-1) + display.getText(); 
+					} else {
+						memory = display.getText();
+					}
 				}else {
-					out.println(display.getText()+symbol);
+					display.setText("-"+display.getText());
+					if(memory.contains(" ")) {
+						memory = memory.substring(0, memory.indexOf(" ")+1) + '-' + display.getText(); 
+					}else {
+						memory = '-' + memory;
+					}
+				}
+				break;
+			case 'C':
+				display.setText("0");
+				memory = "";
+				clear = true;
+				concat = false;
+				break;
+			default:
+				if(concat) {
+					out.println(memory);
 					out.flush();
 					try {
 						display.setText(in.readLine());
-					} catch (IOException e1) {
-						display.setText("ERR");
-					}
+						ans = Double.parseDouble(display.getText());
+						getans = true;
+						memory = Double.toString(ans);
+					} catch (IOException e1) { }
 				}
+				memory += symbol + " ";
+				concat = true;
+				clear = true;
+				break;
 			}
-		}
-	}
-	
-	private class DecimalKey extends Key {
-		private static final long serialVersionUID = 1L;
-		
-		public DecimalKey() {
-			super(",");
-		}
-		
-		protected void update(ActionEvent e) {
-			display.setText(display.getText()+'.');
+			
 		}
 	}
 }
