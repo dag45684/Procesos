@@ -15,8 +15,6 @@ public class CalcServer {
 	private static PrintWriter out;
 	private static BufferedReader in;
 	
-	private static double memory;
-	
 	public static void main(String[] args) {
 		
 		while(true) {
@@ -33,19 +31,20 @@ public class CalcServer {
 					String data = in.readLine();
 					System.out.println(data);
 					
-					double[] nums = new double[2];
-					char op = '\0';
+					double[] nums = new double[2]; //numbers to operate with
+					char op = '\0'; // fuck you java
+					String reg = "(-?\\d*\\.?\\d+)"; //regex
 					
-					try {
-						nums = Pattern.compile("(-?\\d*\\.?\\d+)")
+					try { // behold functional programming regex array population and cry, Julio.
+						nums = Pattern.compile(reg)
 								.matcher(data)
 								.results()
 								.map(MatchResult::group)
 								.mapToDouble(Double::parseDouble)
-								.toArray();
-						op = data.substring(1).replaceAll("\\d*\\.?\\d+", "").charAt(0);
-					} catch(Exception err) {
-						if (data.matches("\\d*\\.?\\d+")) out.println(data);
+								.toArray(); 
+						op = data.replaceAll(reg, "").charAt(0); //operator
+					} catch(Exception err) { //if something weird happen, return the data if its a number or else an error
+						if (data.matches(reg)) out.println(data);
 						else out.println("ERR");
 					}
 
@@ -75,6 +74,7 @@ public class CalcServer {
 					}
 				}
 			}catch (Exception e) { }
+			System.out.println("Disconnected.");
 		}
 	}
 }

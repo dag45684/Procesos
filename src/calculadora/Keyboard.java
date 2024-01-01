@@ -26,11 +26,10 @@ public class Keyboard extends JPanel {
 	
 	private Display display = new Display();
 	
-	private double ans;
-	private String memory = "";
-	private boolean clear = true;
-	private boolean concat = false;
-	private boolean getans = false;
+	private double ans; // last op
+	private String memory = ""; // current op
+	private boolean clear = true; // clear before type
+	private boolean concat = false; // use ans
 	
 	//We make a client side out of this keyboard:
 	Socket socket = null;
@@ -110,14 +109,13 @@ public class Keyboard extends JPanel {
 		}
 		
 		protected void update(ActionEvent e) {
-			getans = false;
-			if (clear) {
+			if (clear) { // just types the number
 				display.setText(value);
 				clear = false;
-			} else {
-				display.setText(display.getText()+value);
+			} else { //adds the number to the actual string 
+				display.setText(display.getText()+value); 
 			}
-			memory += value;
+			memory += value; //refresh value of current op
 		}
 	}
 	
@@ -132,19 +130,20 @@ public class Keyboard extends JPanel {
 		
 		protected void update(ActionEvent e) {
 			switch(symbol) {
-			case '=':
+			//sends current op, displays its response, sets clear, resets concat
+			case '=': 
 				out.println(memory);
 				out.flush();
 				try {
 					display.setText(in.readLine());
 				} catch (IOException e1) { }
 				clear = true;
-				getans = true;
 				concat = false;
 				ans = Double.parseDouble(display.getText());
 				memory=Double.toString(ans);
 				break;
-			case '\u221a':
+			//sends current op, displays its response, sets clear
+			case '\u221a': //Square root
 				memory+="\u221a";
 				out.println(memory);
 				out.flush();
@@ -154,10 +153,14 @@ public class Keyboard extends JPanel {
 				} catch (IOException e1) { }
 				clear = true;
 				break;
+			//types a comma if there is not one already or moves the existent one.
 			case '.':
-				display.setText(display.getText()+symbol);
+				if(display.getText().contains(".")) {
+					display.setText(display.getText().replaceAll("\\.", "")+symbol);
+				} else display.setText(display.getText()+symbol);
 				break;
-			case '\u00b1':
+			//sets the current value to current value * -1. neg. char must be adjacent to number.
+			case '\u00b1': //+- symbol
 				if (display.getText().charAt(0) == '-') {
 					display.setText(display.getText().substring(1));
 					if(memory.contains(" ")) {
@@ -174,12 +177,16 @@ public class Keyboard extends JPanel {
 					}
 				}
 				break;
+			//Clears display, operations, results, memory, and concat
 			case 'C':
 				display.setText("0");
 				memory = "";
 				clear = true;
 				concat = false;
 				break;
+			//any other symbol gets appended to the memory with a space to avoid confusion with negative numbers
+			//then concat and clear are set. If multiple operations are performed, concat will remain true, and this
+			//will force to show the current result in display from a server response before adding anything new to display
 			default:
 				if(concat) {
 					out.println(memory);
@@ -187,7 +194,6 @@ public class Keyboard extends JPanel {
 					try {
 						display.setText(in.readLine());
 						ans = Double.parseDouble(display.getText());
-						getans = true;
 						memory = Double.toString(ans);
 					} catch (IOException e1) { }
 				}
@@ -196,7 +202,6 @@ public class Keyboard extends JPanel {
 				clear = true;
 				break;
 			}
-			
 		}
 	}
 }
