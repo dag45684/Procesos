@@ -31,7 +31,7 @@ public class HashServ {
 				try {
 					hash = md.digest((byte[]) o);
 				}catch (Exception e) {
-					hash = deserialize(o);
+					hash = md.digest(deserialize(o));
 				}
 				StringBuilder result = new StringBuilder();
 				for(byte b : hash) result.append(String.format("%02X", b));
