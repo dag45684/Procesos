@@ -6,6 +6,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+<<<<<<< HEAD
 	<classpathentry kind="lib" path="lib/naipes.jar"/>
+=======
+	<classpathentry kind="src" path="things"/>
+>>>>>>> 823e1b2a7b2a5e2c9fa0af81adccd499fb2015e8
 	<classpathentry kind="output" path="bin"/>
 </classpath>
