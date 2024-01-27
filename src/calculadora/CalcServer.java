@@ -29,12 +29,9 @@ public class CalcServer {
 				
 				while(socket.isBound()) {
 					String data = in.readLine();
-					System.out.println(data);
-					
 					double[] nums = new double[2]; //numbers to operate with
 					char op = '\0'; // fuck you java
 					String reg = "(-?\\d*\\.?\\d+)"; //regex
-					
 					try { // behold functional programming regex array population and cry, Julio.
 						nums = Pattern.compile(reg)
 								.matcher(data)
