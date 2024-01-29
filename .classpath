@@ -1,11 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+<<<<<<< HEAD
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+=======
+	<classpathentry kind="src" path="things"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+>>>>>>> d184880f2a788147ed8a248b7d3e9072170fe495
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+<<<<<<< HEAD
 	<classpathentry kind="lib" path="lib/naipes.jar"/>
+=======
+<<<<<<< HEAD
+	<classpathentry kind="lib" path="C:/Users/Carlos/Desktop/naipes.jar"/>
+=======
+	<classpathentry kind="src" path="src"/>
+<<<<<<< HEAD
+	<classpathentry kind="lib" path="lib/naipes.jar"/>
+=======
+	<classpathentry kind="src" path="things"/>
+>>>>>>> 823e1b2a7b2a5e2c9fa0af81adccd499fb2015e8
+>>>>>>> 14728b3f668bb16606469c7f50456250a074a080
+>>>>>>> d184880f2a788147ed8a248b7d3e9072170fe495
 	<classpathentry kind="output" path="bin"/>
 </classpath>
