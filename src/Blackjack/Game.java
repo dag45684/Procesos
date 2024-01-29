@@ -1,4 +1,4 @@
-package Blackjack;
+package blackjack;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,4 +1,4 @@
-package Blackjack;
+package blackjack;
 
 import java.net.ServerSocket;
 import java.net.Socket;

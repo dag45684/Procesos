@@ -38,6 +38,7 @@ public class HashServ {
 				System.out.println(result.toString());
 				out.println(result.toString());
 				out.flush();
+				s.shutdownOutput();
 			}
 
 		} catch (Exception e) {
