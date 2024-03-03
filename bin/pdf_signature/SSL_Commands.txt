@@ -3,4 +3,36 @@ openssl rsa -in priv_key.pem -pubout -out pub_key.pem
 openssl req -newkey rsa:4096 -x509 -keyout cakey -out ca.crt -days 3650 -nodes -subj "/C=ES/ST=ASTURIAS/L=OVIEDO/O=DAM/CN=DAMCA"
 openssl req -new -key priv_key.pem -out my_cert_req.csr -subj "/C=ES/ST=ASTURIAS/L=OVIEDO/O=DAM/CN=JULIO"
 openssl x509 -req -in my_cert_req.csr -days 3650 -CA ca.crt -CAkey cakey -set_serial 01 -out my_certificate.crt
-openssl pkcs12 -export -in my_certificate.crt -inkey rsa_priv.pem -out keystore.p12 -name alias_carlos_data
+openssl pkcs12 -export -in my_certificate.crt -inkey rsa_priv.pem -out keystore.p12 -name alias_carlos_data -passout pass:keystore_password
+
+####
+#Creación de una clave privada:
+Openssl genrsa -out nombre.pem 3072
+
+#Si queremos que sea cifrada:
+Openssl genrsa -out nombre.pem -aes128 3072
+Openssl genrsa -out nombre.pem -aes256 4096
+
+#Para obtener la clave pública asociada a una clave privada:
+Openssl rsa -in nombrePrivada.pem -pubout -out nombrePublica.pem
+
+#Generación de una solicitud de firma de certificado (CSR) a partir de una clave privada:
+Openssl req -new -key nombrePrivada.pem -out cert.csr
+
+#De esta forma nos pedirá parámetros por entrada estándar, si queremos pasárselos:
+Openssl req -new -key nombrePrivada.pem -out cert.csr -subj “C=ES/ST=ASTURIAS/L=SOTRONDIO/O=DAM/CN=PSP”
+
+#Crear una CA:
+Openssl req -newkey rsa:3072 -x509 -keyout cakey -out ca.crt -days 3650 -nodes -subj “C=ES/ST=ASTURIAS/L=SOTRONDIO/O=DAM/CN=PSP”
+
+#Firmar una solicitud de firma:
+Openssl x509 -req -in micert.csr -days 3650 -CA ca.crt -CAkey cakey -set_serial 01 -out micert.crt
+
+#Importar certificados a una keystore:
+Keytool -importcert -keystore keystore.p12 -alias micertificado -file micertificado.crt
+
+#Para almacenar claves privadas en una keystore hay que almacenarla junto a un certificado asociado a la misma en un fichero PKCS#12:
+Openssl pkcs12 -export -in micertificado.crt -inkey nombrePrivada.pem -out nuevo.p12 -name miclave
+
+#Y una vez creado almacenarlo en el almacen de llaves
+Keytool -importkeystore -destkeystore keystore.p12 -srckeystore nuevo.p12 PKCS12
